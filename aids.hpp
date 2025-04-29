@@ -131,13 +131,13 @@ private:
 
     // Methods
     void resize() {
-        if (!_size) return;
-
         size_t newCap = (_cap != 1) ? (_size * 1.5) : 2;
         T* newXVec = new T[newCap]();
-        
-        for (size_t i = 0; i < _size; ++i) {
-            newXVec[i] = _data[i];
+
+        if (_size) {
+            for (size_t i = 0; i < _size; ++i) {
+                newXVec[i] = _data[i];
+            }
         }
         delete[] _data;
         _data = newXVec;
