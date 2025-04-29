@@ -1,2 +1,2 @@
 ### Aids
-The library that makes C++ experience easier.
+The library that makes C++ experience.
