@@ -115,7 +115,7 @@ T min(T value1, T value2) {
 }
 
 template <typename T>
-T& clamp(T trackValue, T minValue, T maxValue) {
+T clamp(T trackValue, T minValue, T maxValue) {
     if (trackValue < minValue) { trackValue = minValue; }
     if (trackValue > maxValue) { trackValue = maxValue; }
     return trackValue;
