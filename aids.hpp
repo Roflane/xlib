@@ -97,7 +97,7 @@ const char* strCpy(char *buffer, const char *srcStr) {
     return buffer;
 }
 
-void* __stdcall memCpy(void *dest, void *src, size_t size) {
+void* memCpy(void *dest, void *src, size_t size) {
     for (size_t i = 0; i < size; ++i) {
         *(reinterpret_cast<unsigned char*>(dest) + i) = *(reinterpret_cast<unsigned char*>(src) + i);
     }
