@@ -394,7 +394,6 @@ public:
         other._length = 0;
     }
     ~XStr() {
-        for (size_t i = 0; i < _length; ++i) { _data[i] = 0x90; }
         delete[] _data;
         _data = nullptr;
     }
