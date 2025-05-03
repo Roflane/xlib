@@ -1,2 +1,2 @@
 ### Aids
-The library that makes C++ 20 experience.
+The library that makes C++ (17+) experience.
