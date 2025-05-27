@@ -405,7 +405,7 @@ public:
 
     void operator==(XStr &&other) {
         _data = new char[other._length + 1];
-        strCpy(_data, sizeof(_data), other._data);
+        strCpy(_data, other._data);
     }
 
     bool operator==(const char *other) const {
@@ -417,7 +417,7 @@ public:
             delete[] _data;
             _length = other._length;
             _data = new char[_length + 1];
-            strcpy_s(_data, other._data);
+            strCpy(_data, other._data);
         }
         return *this;
     }
