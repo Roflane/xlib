@@ -121,6 +121,207 @@ T clamp(T trackValue, T minValue, T maxValue) {
     return trackValue;
 }
 
+class FileException : std::exception {
+protected:
+	std::string _msg;
+public:
+	FileException(std::string msg) : _msg(msg) {}
+	virtual ~FileException() = default;
+
+	virtual const char* what() const noexcept {
+		return _msg.c_str();
+	}
+};
+
+class FileOpenException : FileException {
+public:
+	FileOpenException(std::string msg = "File open failure.") : FileException(msg) {}
+
+	char const* what() const noexcept override {
+		return _msg.c_str();
+	}
+};
+
+class FileReadException : FileException {
+public:
+	FileReadException(std::string msg = "File read failure.") : FileException(msg) {}
+
+	char const* what() const noexcept override {
+		return _msg.c_str();
+	}
+};
+
+
+abstract class FileViewer {
+public:
+	virtual ~FileViewer() { std::cout << "\n~FileViewer" << std::endl; };
+	virtual void Display(const char* path) const = 0;
+};
+
+class TextViewer : public FileViewer {
+public:
+	virtual ~TextViewer() = default;
+
+	void Display(const char* path) const override {
+		FILE *f;
+		errno_t status = fopen_s(&f, path, "r");
+		if (status != 0) { 
+			FileOpenException e("File open failure from TextViewer instance.");
+			std::cout << e.what() << '\n';
+			return;
+		}
+		else {
+			fseek(f, 0, SEEK_END);
+			size_t fileSize = ftell(f);
+			rewind(f);
+
+			char* buffer = new char[fileSize + 1];
+			size_t readSize = fread(buffer, 1, fileSize, f);
+			if (readSize == 0) {
+				FileReadException e("No file content found while reading from TextViewer instance.");
+				std::cout << e.what() << '\n';
+				return;
+			}
+			buffer[fileSize] = '\0';
+
+			printf("%s\n", buffer);
+
+			delete[] buffer;
+			fclose(f);
+		}
+	}
+};
+
+class BinaryViewer : public FileViewer {
+public:
+	void Display(const char* path) const override {
+		FILE *f;
+		errno_t status = fopen_s(&f, path, "rb");
+		if (status != 0) {
+			FileOpenException e("File open failure from BinaryViewer instance.");
+			std::cout << e.what() << '\n';
+			return;
+		}
+		else {
+			fseek(f, 0, SEEK_END);
+			size_t fileSize = ftell(f);
+			rewind(f);
+
+			char *buffer = new char[fileSize + 1];
+			size_t readSize = fread(buffer, fileSize, 1, f);
+			if (readSize == 0) {
+				FileReadException e("No file content found while reading from BinaryViewer instance.");
+				std::cout << e.what() << '\n';
+				return;
+			}
+			buffer[fileSize] = '\0';
+
+			printf("%s\n", buffer);
+
+			delete[] buffer;
+			fclose(f);
+		}
+	}
+};
+
+class AsciiViewer : public FileViewer {
+public:
+	void Display(const char* path) const override {
+		FILE *f;
+		errno_t status = fopen_s(&f, path, "rb");
+		if (status != 0) {
+			FileOpenException e("File open failure from AsciiViewer instance.");
+			std::cout << e.what() << '\n';
+			return;
+		}
+		else {
+			fseek(f, 0, SEEK_END);
+			size_t fileSize = ftell(f);
+			rewind(f);
+
+			char* buffer = new char[fileSize + 1];
+			size_t readSize = fread(buffer, 1, fileSize, f);
+			if (readSize == 0) {
+				FileReadException e("No file content found while reading from AsciiViewer instance.");
+				std::cout << e.what() << '\n';
+				return;
+			}
+			buffer[fileSize] = '\0';
+
+			for (size_t i = 0; i < fileSize; ++i) {
+				ushort ascii = buffer[i];
+
+				if (ascii == 32 || ascii == 13 || ascii == 10) { std::cout << '\n'; }
+				else { std::cout << ascii << '\n'; }
+			}
+
+			delete[] buffer;
+			fclose(f);
+		}
+	}
+};
+
+class HexViewer : public FileViewer {
+public:
+	void Display(const char* path) const override {
+		FILE *f;
+		errno_t status = fopen_s(&f, path, "rb");
+		if (status != 0) {
+			FileOpenException e("File open failure from HexViewer instance.");
+			std::cout << e.what() << '\n';
+			return;
+		}
+		else {
+			fseek(f, 0, SEEK_END);
+			size_t fileSize = ftell(f);
+			rewind(f);
+
+			char *buffer = new char[fileSize + 1];
+			size_t readSize = fread(buffer, fileSize, 1, f);
+			if (readSize == 0) {
+				FileReadException e("No file content found while reading from HexViewer instance.");
+				std::cout << e.what() << '\n';
+				return;
+			}
+			buffer[fileSize] = '\0';
+
+			for (size_t i = 0; i < fileSize; ++i) {
+				ushort hex = buffer[i];
+				std::cout << std::hex << std::uppercase << hex;
+			}
+
+			delete[] buffer;
+			fclose(f);
+		}
+	}
+};
+
+void ConvertTextToBinary(const char* textPath, const char* binPath) {
+	FILE *fText, *fBin;
+	fopen_s(&fText, textPath, "rb");
+	fopen_s(&fBin,  binPath,  "wb");
+	
+	if (fText && fBin) {
+		fseek(fText, 0, SEEK_END);
+		size_t fileSize = ftell(fText);
+		rewind(fText);
+
+		char *_buffer = new char[fileSize];
+		size_t readSize = fread(_buffer, 1, fileSize, fText);
+		if (readSize != fileSize) {
+			perror("File read failure");
+		}
+		size_t writeSize = fwrite(_buffer, 1, fileSize, fBin);
+		if (writeSize != fileSize) {
+			perror("File write failure");
+		}
+
+		delete[] _buffer;
+		fclose(fText);
+		fclose(fBin);
+	}
+}
+
 template<typename T>
 class XVec {
 private:
