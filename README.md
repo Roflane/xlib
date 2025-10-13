@@ -1,2 +1,3 @@
-### Aids
-The library that makes C++ (17+) experience.
+### xlib
+This library provides convenient access to basic collections and intrinsics.
+Requirement: C++ 20
