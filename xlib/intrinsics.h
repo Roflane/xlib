@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #include <immintrin.h>
 
 namespace xlib::intrinsics {
@@ -8,7 +9,7 @@ namespace xlib::intrinsics {
         __asm__ (
             "mov $1, %%eax\n\t"
             "cpuid\n\t"
-            "mov %%ebx, %%eax\n\t"
+            "mov %%ecx, %%eax\n\t"
             "shl $30, %%edx\n\t"
             "and %%edx, %%eax\n\t"
             "shr $30, %%eax \n\t"
@@ -23,7 +24,6 @@ namespace xlib::intrinsics {
 #ifdef __GNUC__
         __asm__ (
             "mov $7, %%eax\n\t"
-            "xor %%ecx, %%ecx\n\t"
             "cpuid\n\t"
             "mov %%ebx, %%eax\n\t"
             "shl $18, %%edx\n\t"
@@ -34,6 +34,11 @@ namespace xlib::intrinsics {
 #endif
         return eax;
     }
+
+    inline uint64_t _rdtsc_() {
+        return __rdtsc();
+    }
+
 
     template<typename T>
     static auto _rdrand() -> T {
@@ -49,7 +54,7 @@ namespace xlib::intrinsics {
 #ifdef __GNUC__
         __asm__ __volatile__(
             "rdrand %0"
-            : "=a"(result)
+            : "=r"(result)
         );
 #else
         _rdrand64_step(&result);
@@ -104,7 +109,7 @@ namespace xlib::intrinsics {
         unsigned char status;
         __asm__ (
             "rdseed %0"
-            : "=a"(result)
+            : "=r"(result)
         );
 #else
         _rdseed64_step(&result);

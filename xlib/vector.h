@@ -70,7 +70,6 @@ namespace xlib {
             other._cap = 0;
         }
         ~vector() {
-            memset(_data, 0, _size);
             delete[] _data;
             _data = nullptr;
         }
