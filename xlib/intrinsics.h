@@ -12,7 +12,7 @@ namespace xlib::intrinsics {
             "mov %%ecx, %%eax\n\t"
             "shl $30, %%edx\n\t"
             "and %%edx, %%eax\n\t"
-            "shr $30, %%eax \n\t"
+            "shr $30, %%eax\n\t"
             : "=a" (eax)
             :
             : "ebx", "ecx", "edx"
@@ -22,15 +22,15 @@ namespace xlib::intrinsics {
     }
 
     inline bool _supports_rdseed() {
-        unsigned eax = 0;
+        unsigned eax;
 #ifdef __GNUC__
         __asm__ __volatile__ (
             "mov $7, %%eax\n\t"
+            "xor %%ecx, %%ecx\n\t"
             "cpuid\n\t"
-            "mov %%ebx, %%eax\n\t"
-            "shl $18, %%edx\n\t"
-            "and %%edx, %%eax\n\t"
-            "shr $18, %%eax\n\t"
+            "bt $18, %%ebx\n\t"
+            "setc %%al\n\t"
+            "movzx %%al, %%eax\n\t"
             : "=a" (eax)
             :
             : "ebx", "ecx", "edx"
