@@ -4,39 +4,37 @@
 
 namespace xlib::intrinsics {
     inline bool _supports_rdrand() {
-        unsigned eax = 0;
+        bool supported;
 #ifdef __GNUC__
         __asm__ __volatile__ (
             "mov $1, %%eax\n\t"
             "cpuid\n\t"
-            "mov %%ecx, %%eax\n\t"
-            "shl $30, %%edx\n\t"
-            "and %%edx, %%eax\n\t"
-            "shr $30, %%eax\n\t"
-            : "=a" (eax)
+            "xor %%eax, %%eax\n\t"
+            "bt $18, %%ecx\n\t"
+            "setc %%al\n\t"
+            : "=a" (supported)
             :
             : "ebx", "ecx", "edx"
         );
 #endif
-        return eax;
+        return supported;
     }
 
     inline bool _supports_rdseed() {
-        unsigned eax;
+        bool supported;
 #ifdef __GNUC__
         __asm__ __volatile__ (
             "mov $7, %%eax\n\t"
-            "xor %%ecx, %%ecx\n\t"
             "cpuid\n\t"
+            "xor %%eax, %%eax\n\t"
             "bt $18, %%ebx\n\t"
             "setc %%al\n\t"
-            "movzx %%al, %%eax\n\t"
-            : "=a" (eax)
+            : "=a" (supported)
             :
             : "ebx", "ecx", "edx"
         );
 #endif
-        return eax;
+        return supported;
     }
 
     inline uint64_t _rdtsc_() {
