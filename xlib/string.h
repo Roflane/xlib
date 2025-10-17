@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 
 namespace xlib {
     inline size_t strlen(const char *str) {

@@ -1,7 +1,7 @@
 #pragma once
 #include <initializer_list>
 #include <iosfwd>
-#include "string.h"
+#include <iostream>
 
 namespace xlib {
     template<typename T>

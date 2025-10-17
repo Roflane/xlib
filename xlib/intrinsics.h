@@ -1,46 +1,10 @@
 #pragma once
 #include <cstdint>
 #include <immintrin.h>
+#include "Context/XlibContext.h"
 
 namespace xlib::intrinsics {
-    inline bool _supports_rdrand() {
-        bool supported;
-#ifdef __GNUC__
-        __asm__ __volatile__ (
-            "mov $1, %%eax\n\t"
-            "cpuid\n\t"
-            "xor %%eax, %%eax\n\t"
-            "bt $18, %%ecx\n\t"
-            "setc %%al\n\t"
-            : "=a" (supported)
-            :
-            : "ebx", "ecx", "edx"
-        );
-#endif
-        return supported;
-    }
-
-    inline bool _supports_rdseed() {
-        bool supported;
-#ifdef __GNUC__
-        __asm__ __volatile__ (
-            "mov $7, %%eax\n\t"
-            "cpuid\n\t"
-            "xor %%eax, %%eax\n\t"
-            "bt $18, %%ebx\n\t"
-            "setc %%al\n\t"
-            : "=a" (supported)
-            :
-            : "ebx", "ecx", "edx"
-        );
-#endif
-        return supported;
-    }
-
-    inline uint64_t _rdtsc_() {
-        return __rdtsc();
-    }
-
+    inline uint64_t _rdtsc_() { return __rdtsc(); }
 
     template<typename T>
     static auto _rdrand() -> T {
@@ -51,7 +15,7 @@ namespace xlib::intrinsics {
     template <>
     inline auto _rdrand<uint64_t>() -> uint64_t {
         uint64_t result = 0;
-        if (!_supports_rdrand()) return result;
+        if (xlib_context.getRdrandSupported()) return result;
 
 #ifdef __GNUC__
         __asm__ __volatile__(
@@ -67,7 +31,7 @@ namespace xlib::intrinsics {
     template <>
     inline auto _rdrand<uint32_t>() -> uint32_t {
         uint32_t result = 0;
-        if (!_supports_rdrand()) return result;
+        if (!xlib_context.getRdrandSupported()) return result;
 
 #ifdef __GNUC__
         __asm__ __volatile__(
@@ -83,7 +47,7 @@ namespace xlib::intrinsics {
     template <>
     inline auto _rdrand<uint16_t>() -> uint16_t {
         uint16_t result = 0;
-        if (!_supports_rdrand()) return result;
+        if (!xlib_context.getRdrandSupported()) return result;
 
 #ifdef __GNUC__
         __asm__ __volatile__(
@@ -92,6 +56,19 @@ namespace xlib::intrinsics {
         );
 #else
         _rdrand16_step(&result);
+#endif
+        return result;
+    }
+
+    template <>
+    inline auto _rdrand<uint8_t>() -> uint8_t {
+        uint8_t result = 0;
+        if (!xlib_context.getRdrandSupported()) return result;
+
+#ifdef __GNUC__
+        result = _rdrand<uint16_t>();
+#else
+        _rdrand16_step(reinterpret_cast<uint16_t*>(&result));
 #endif
         return result;
     }
@@ -105,7 +82,7 @@ namespace xlib::intrinsics {
     template <>
     inline auto _rdseed<uint64_t>() -> uint64_t {
         uint64_t result = 0;
-        if (!_supports_rdseed()) return result;
+        if (!xlib_context.getRdseedSupported()) return result;
 
 #ifdef __GNUC__
         unsigned char status;
@@ -122,7 +99,7 @@ namespace xlib::intrinsics {
     template <>
     inline auto _rdseed<uint32_t>() -> uint32_t {
         uint32_t result = 0;
-        if (!_supports_rdseed()) return result;
+        if (!xlib_context.getRdseedSupported()) return result;
 
 #ifdef __GNUC__
         __asm__ (
@@ -138,7 +115,7 @@ namespace xlib::intrinsics {
     template <>
     inline auto _rdseed<uint16_t>() -> uint16_t {
         uint16_t result = 0;
-        if (!_supports_rdseed()) return result;
+        if (!xlib_context.getRdseedSupported()) return result;
 
 #ifdef __GNUC__
         __asm__ (
