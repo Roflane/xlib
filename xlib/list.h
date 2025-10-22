@@ -101,18 +101,13 @@ namespace xlib {
             }
         }
 
-        bool operator!=(list<T> &other) const {
+        bool operator!=(list &other) const {
             return _pHead != other._pHead;
         }
 
-        list<T> operator=(const list<T> &other) {
-            _length = other._length;
-            _pHead = other._pHead;
-            _pTail = other._pTail;
-            return *this;
-        }
+        list& operator=(const list &other) = default;
 
-        list<T>& operator=(list<T> &&other) noexcept {
+        list& operator=(list<T> &&other) noexcept {
             if (*this != other) {
                 _length = other._length;
                 _pHead = other._pHead;
@@ -128,23 +123,22 @@ namespace xlib {
             return _length;
         }
 
-        Iterator begin() {
+        Iterator begin() const {
             return static_cast<Iterator>(_pHead);
         }
 
-        Iterator end() {
+        Iterator end() const {
             return static_cast<Iterator>(nullptr);
         }
 
         Node<T>* push_back(const T &v) {
-            Node<T> *newNode = new Node<T>;
+            auto *newNode = new Node<T>;
             newNode->value = v;
             newNode->id = _length;
 
             if (_length == 0) {
                 _pHead = _pTail = newNode;
-            }
-            else {
+            } else {
                 _pTail->next = newNode;
                 newNode->prev = _pTail;
                 _pTail = newNode;
@@ -185,7 +179,7 @@ namespace xlib {
             _length = 0;
         }
 
-        bool empty() const {
+        [[nodiscard]] bool empty() const {
             return _length == 0;
         }
 
@@ -195,7 +189,7 @@ namespace xlib {
                 return;
             }
 
-            Node<T> *newNode = new Node<T>;
+            auto *newNode = new Node<T>;
             newNode->value = v;
             newNode->id = _length;
 
@@ -220,8 +214,7 @@ namespace xlib {
                 const Node<T> *temp = _pHead;
                 _pHead = _pHead->next;
                 delete temp;
-            }
-            else {
+            } else {
                 Node<T> *headNode = _pHead;
                 for (size_t i = 0; i < id - 1; ++i) {
                     headNode = headNode->next;
@@ -249,4 +242,3 @@ namespace xlib {
         }
     };
 }
-

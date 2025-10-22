@@ -1,7 +1,6 @@
 #pragma once
 #include <initializer_list>
 #include <iosfwd>
-#include <iostream>
 
 namespace xlib {
     template<typename T>
@@ -31,7 +30,7 @@ namespace xlib {
         public:
             explicit Iterator(T* current) : _current(current) {}
             
-            bool operator!=(const Iterator& rhs) const {
+            bool operator!=(const Iterator &rhs) const {
                 return _current != rhs._current;
             }
 
@@ -58,58 +57,88 @@ namespace xlib {
                 }
             }
         }
-        vector(const vector& other) : _size(other._size), _cap(other._cap) {
+        vector(const vector &other) : _size(other._size), _cap(other._cap) {
             _data = new T[_cap]();
             for (size_t i = 0; i < _size; ++i) {
                 _data[i] = other._data[i];
             }
         }
-        vector(vector&& other) noexcept : _data(other._data), _size(other._size), _cap(other._cap) {
+        vector(vector &&other) noexcept : _data(other._data), _size(other._size), _cap(other._cap) {
             other._data = nullptr;
             other._size = 0;
             other._cap = 0;
         }
         ~vector() {
+            println("~vector()");
             delete[] _data;
             _data = nullptr;
         }
-        
+
+        vector& operator=(const vector& other) {
+            if (this != & other) {
+                _size = other._size;
+                _cap = other._cap;
+                _data = new T[_cap]();
+                for (size_t i = 0; i < _size; ++i) {
+                    _data[i] = other._data[i];
+                }
+            }
+            return *this;
+        }
+
+        vector& operator=(vector&& other) noexcept {
+            if (this != &other) {
+                delete[] _data;
+                _data = nullptr;
+
+                _size = other._size;
+                _cap = other._cap;
+                _data = other._data;
+
+                other._data = nullptr;
+                other._size = 0;
+                other._cap = 0;
+
+            }
+            return *this;
+        }
+
         vector operator+(const vector other) {
             size_t actualSize = _size > other._size ? other.size() : _size;
-            vector newvector(actualSize);
+            vector newVector(actualSize);
             for (size_t i = 0; i < actualSize; ++i) {
-                newvector._data[i] = _data[i] + other._data[i];
+                newVector._data[i] = _data[i] + other._data[i];
             }
-            return newvector;
+            return newVector;
         }
 
         vector operator-(const vector other) {
             const size_t actualSize = _size > other._size ? other.size() : _size;
-            vector newvector(actualSize);
+            vector newVector(actualSize);
             for (size_t i = 0; i < actualSize; ++i) {
-                newvector._data[i] = _data[i] - other._data[i];
+                newVector._data[i] = _data[i] - other._data[i];
             }
-            return newvector;
+            return newVector;
         }
 
         vector operator*(const vector other) {
             const size_t actualSize = _size > other._size ? other.size() : _size;
-            vector newvector(actualSize);
+            vector newVector(actualSize);
             for (size_t i = 0; i < actualSize; ++i) {
-                newvector._data[i] = _data[i] * other._data[i];
+                newVector._data[i] = _data[i] * other._data[i];
             }
-            return newvector;
+            return newVector;
         }
 
         vector operator/(const vector other) {
             size_t actualSize = _size > other._size ? other.size() : _size;
-            vector newvector(actualSize);
+            vector newVector(actualSize);
 
             for (size_t i = 0; i < actualSize; ++i) {
                 if (other._data[i] == 0) { return 0; }
-                newvector._data[i] = _data[i] / other._data[i];
+                newVector._data[i] = _data[i] / other._data[i];
             }
-            return newvector;
+            return newVector;
         }
 
         auto operator+=(const vector other) -> decltype(_data) {
@@ -177,8 +206,12 @@ namespace xlib {
         }
 
         T& operator[](size_t index) {
-            if (index >= _size) { return _data[_size - 1]; }
-            if (index == _cap)  { return _data[_size - 1]; }
+            if (index >= _size) throw std::out_of_range("Index is out of range");
+            return _data[index];
+        }
+
+        const T& operator[](size_t index) const {
+            if (index >= _size) throw std::out_of_range("Index is out of range");
             return _data[index];
         }
 
@@ -210,6 +243,9 @@ namespace xlib {
             _data[index] = value;
         }
 
+        T* data() { return _data; }
+        const T* data() const { return _data; }
+
         // Methods
         Iterator begin() {
             return Iterator(_data);
@@ -239,8 +275,18 @@ namespace xlib {
         }
 
         void remove(const size_t index) {
-            if (index >= _size - 1) { pop(); }
+            if (index >= _size - 1) return;
 
+            for (size_t i = index; i < _size - 1; ++i) {
+                _data[i] = _data[i + 1];
+            }
+            _size--;
+        }
+
+        void remove(const Iterator it) {
+            if (it == end()) return;
+
+            const size_t index = it._current - _data;
             for (size_t i = index; i < _size - 1; ++i) {
                 _data[i] = _data[i + 1];
             }

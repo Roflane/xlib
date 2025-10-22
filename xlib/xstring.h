@@ -1,7 +1,5 @@
 #pragma once
-#include <cstdint>
 #include <iosfwd>
-
 #include "string.h"
 
 namespace xlib {
@@ -12,8 +10,8 @@ namespace xlib {
         size_t _cap;
         
         void resize() {
-            const size_t newCap = _cap != 1 ? _length * 1.5 : 2;
-            char* newString = new char[newCap]();
+            const size_t newCap = _length * 2;
+            auto const newString = new char[newCap]();
 
             if (_length) {
                 for (size_t i = 0; i < _length; ++i) {
@@ -62,6 +60,7 @@ namespace xlib {
             other._cap = 0;
         }
         ~string() {
+            println("~string()");
             delete[] _data;
             _data = nullptr;
         }
@@ -76,12 +75,14 @@ namespace xlib {
             return *this;
         }
 
-        string& operator=(const char *str) {
-            delete[] _data;
-            _length = strlen(str) + 1;
-            _cap = _length;
-            _data = new char[_length + 1];
-            strcpy(_data, str);
+        string& operator=(const char *other) {
+            if (_data != other) {
+                delete[] _data;
+                _length = strlen(other) + 1;
+                _cap = _length;
+                _data = new char[_length + 1];
+                strcpy(_data, other);
+            }
             return *this;
         }
 
@@ -102,19 +103,7 @@ namespace xlib {
             return _data[index];
         }
 
-        friend std::ostream& operator<<(std::ostream& os, const string& vec) {
-            for (size_t i = 0; i < vec.size(); ++i) {
-                os << vec._data[i];
-            }
-            return os;
-        }
 
-        friend std::istream& operator>>(std::istream& is, string& vec) {
-            for (size_t i = 0; i < vec.size(); ++i) {
-                is >> vec._data[i];
-            }
-            return is;
-        }
 
         // Properties
         [[nodiscard]] size_t length() const       { return _length; }
@@ -123,8 +112,7 @@ namespace xlib {
 
         // Methods
         [[nodiscard]] Iterator begin() const { return Iterator(_data); }
-
-        [[nodiscard]] Iterator end() const;
+        [[nodiscard]] Iterator end() const { return Iterator(_data + _length); }
 
         [[nodiscard]] size_t size() const { return _length; }
         [[nodiscard]] size_t cap()  const { return _cap; }
@@ -158,9 +146,14 @@ namespace xlib {
             if (_length == 0) return;
             _length -= 1;
         }
-    };
 
-    inline string::Iterator string::end() const {
-        return Iterator(_data + _length);
-    }
+        [[nodiscard]] auto reverse() const -> const char* {
+            auto const reversed = new char[_length];
+            for (size_t i = 0; i < _length - 1; ++i) {
+                reversed[i] = _data[_length - i - 2];
+            }
+            reversed[_length - 1] = '\0';
+            return reversed;
+        }
+    };
 }

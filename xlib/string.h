@@ -62,7 +62,7 @@ namespace xlib {
         const size_t length = strlen(str);
         const size_t length2 = strlen(str2);
         const size_t newSz = length + length2;
-        char* newArr = new char[newSz + 1]();
+        char* const newArr = new char[newSz + 1]();
 
         for (size_t i = 0; str[i] != '\0'; ++i) {
             newArr[i] = str[i];
@@ -76,13 +76,13 @@ namespace xlib {
     }
 
 
-    inline const char* strcpy(char *buffer, const char *srcStr) {
+    inline const char* strcpy(char *destBuffer, const char *srcStr) {
         size_t i = 0;
         for (; srcStr[i] != '\0'; ++i) {
-            *(buffer + i) = *(srcStr + i);
+            *(destBuffer + i) = *(srcStr + i);
         }
-        buffer[i] = '\0';
-        return buffer;
+        destBuffer[i] = '\0';
+        return destBuffer;
     }
 
     template <typename T>
@@ -95,6 +95,8 @@ namespace xlib {
 
     template <typename T>
     T* memset(T *dest, unsigned char c, const size_t count) {
+        if (dest == nullptr) return nullptr;
+
         T* newDest = dest;
         for (size_t i = 0; i < count; ++i) {
             newDest[i] = c;
