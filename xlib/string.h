@@ -12,7 +12,6 @@ namespace xlib {
         return length;
     }
 
-
     inline bool strcmp(const char *str, const char *str2) {
         for (size_t i = 0; str[i] != '\0' || str2[i] != '\0'; ++i) {
             if (str[i] != str2[i]) {
@@ -21,7 +20,6 @@ namespace xlib {
         }
         return false;
     }
-
 
     inline const char* strchr_s(const char *str, const char chr) {
         size_t i = 0;
@@ -32,7 +30,6 @@ namespace xlib {
         }
         return &str[i]; // ret '\0'
     }
-
 
     inline const char* strchr(const char *str, const char chr) {
         if (chr == '\0') return str + strlen(str);
@@ -45,7 +42,6 @@ namespace xlib {
         return nullptr;
     }
 
-
     inline const char* strstr(const char *str, const char *str2) {
         if (*str2 == '\0') return str;
 
@@ -56,7 +52,6 @@ namespace xlib {
         }
         return nullptr;
     }
-
 
     inline const char* strCat(const char *str, const char *str2) {
         const size_t length = strlen(str);
@@ -74,7 +69,6 @@ namespace xlib {
 
         return newArr;
     }
-
 
     inline const char* strcpy(char *destBuffer, const char *srcStr) {
         size_t i = 0;

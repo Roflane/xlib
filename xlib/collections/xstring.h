@@ -1,6 +1,6 @@
 #pragma once
 #include <iosfwd>
-#include "string.h"
+#include "../string.h"
 
 namespace xlib {
     class string {
