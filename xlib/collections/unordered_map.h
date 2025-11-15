@@ -96,7 +96,7 @@ namespace xlib {
         }
 
         V& operator=(const unordered_map &other) {
-            if (this == &other) {
+            if (this != &other) {
                 _buckets = other._buckets;
                 _size = other._size;
                 _cap = other._cap;
@@ -105,7 +105,7 @@ namespace xlib {
         }
 
         V& operator=(unordered_map &&other) noexcept {
-            if (this == &other) {
+            if (this != &other) {
                 _buckets.~vector();
                 _buckets = nullptr;
 
