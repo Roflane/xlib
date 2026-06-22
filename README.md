@@ -6,7 +6,7 @@ controlled, minimal alternative to the standard library.
 **Stack:** C++
 
 ### Implemented
-- `vector<T>` — manual memory management
+- `vector<T>`
 - `string`
 - `unordered_map<K, V>`
 - `linked_list<T>`
